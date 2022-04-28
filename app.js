@@ -1,51 +1,38 @@
 // === imports == //
 import express from 'express'
 import bodyParser from 'body-parser'
+import { createTask, deleteTask, getAllTasks, updateTask } from './src/tasks/taskController';
+//Let's pretend all the necessary imports are here
+/* 
+The code has still a lot of rooms for improvement. This should be in a router file, some of the endpoints are lacking 
+tokens for autentication, the backend in itself should probably be thinked again and the db too.
+A new error handler and more config should be used.
+
+*/
 
 // === initialisation == //
 const app = express()
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
-// === store == //
-var todoItems = [];
-todoItems.push({ index: 1, value: "learn react", done: false });
-todoItems.push({ index: 2, value: "Go shopping", done: true });
-todoItems.push({ index: 3, value: "buy flowers", done: true });
-var index = 5;
-
-
 // === endpoints == //
 // index endpoint
 app.get('/', (req, res) => res.send('Hello World!'))
 
 // get all tasks
-app.get('/task', (req, res) => {
-    return res.json({ data: todoItems, status: "success" })
-})
+app.get('/tasks', getAllTasks)
+
+//should add app.get('/task/:id', getTask)
 
 // create a task
-app.post('/task', (req, res) => {
-    todoItems.push({
-        index: index++,
-        value: req.body.value,
-        done: false,
-    })
-    return res.json({ data: todoItems, status: 'success' })
-})
+app.post('/task', createTask)
 
 // delete a task
-app.delete('/task/:id', (req, res) => {
-    var todoItems = todoItems.filter(d => d.index != +req.params.id)
-    return res.json({ data: todoItems, status: 'success' })
-})
+app.delete('/task/:id', deleteTask)
 
 // update a task
-app.patch('/task/:id', (req, res) => {
-    todoItems.filter(d => d.index == +req.params.id)[0].done = req.body.done
-    return res.json({ data: todoItems, status: 'success' })
-})
+app.update('/task/:id', updateTask)
 
 // === run app == //
-app.listen(8000, () => console.log(`Example app running!`))
+app.listen(config.httpPort, () => console.log(`Server running. Listening on HTTP port ${config.httpPort} and HTTPS port ${config.httpsPort}`))
+util.initDB() // Create some users, etc
